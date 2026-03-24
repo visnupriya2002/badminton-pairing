@@ -1,5 +1,5 @@
 import MatchCard from './MatchCard'
-import ChampionBanner from './ChampionBanner'
+import CelebrationModal from './CelebrationModal'
 import Leaderboard from './Leaderboard'
 import { calculateStandings } from '../../hooks/useTournament'
 
@@ -313,15 +313,16 @@ export default function TournamentPanel({ pairs, stage, groups, groupMatches, se
                     />
                   </div>
 
-                  {/* Champion */}
-                  {stage === 'champion' && (
-                    <ChampionBanner champion={champion} pairs={pairs} />
-                  )}
                 </div>
               </>
             )
           })()}
         </div>
+      )}
+
+      {/* Champion Celebration Overlay */}
+      {stage === 'champion' && (
+        <CelebrationModal champion={champion} pairs={pairs} onReset={onReset} />
       )}
     </div>
   )

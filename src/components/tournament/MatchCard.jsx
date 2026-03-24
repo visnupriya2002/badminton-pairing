@@ -1,4 +1,4 @@
-function TeamRow({ teamNum, pair, score, isWinner, isLoser, onScore, onPick }) {
+function TeamRow({ teamNum, pair, score, isWinner, isLoser, isAdmin, onScore, onPick }) {
   return (
     <div
       className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-all ${
@@ -12,10 +12,13 @@ function TeamRow({ teamNum, pair, score, isWinner, isLoser, onScore, onPick }) {
       {/* Pick winner circle */}
       <button
         onClick={onPick}
+        disabled={!isAdmin}
         className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
           isWinner
             ? 'bg-amber-400 border-amber-400 text-white'
-            : 'border-slate-300 hover:border-amber-400 bg-white'
+            : isAdmin
+            ? 'border-slate-300 hover:border-amber-400 bg-white cursor-pointer'
+            : 'border-slate-200 bg-slate-100 cursor-not-allowed'
         }`}
       >
         {isWinner && <span className="text-[10px] font-bold leading-none">✓</span>}
@@ -42,8 +45,11 @@ function TeamRow({ teamNum, pair, score, isWinner, isLoser, onScore, onPick }) {
         value={score}
         onChange={(e) => onScore(e.target.value)}
         placeholder="-"
+        disabled={!isAdmin}
         className={`w-10 text-center text-base font-bold rounded border py-1 focus:outline-none focus:ring-2 focus:ring-amber-300 ${
-          isWinner
+          !isAdmin
+            ? 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed'
+            : isWinner
             ? 'bg-amber-100 border-amber-300 text-amber-800'
             : 'bg-white border-slate-300 text-slate-700'
         }`}
@@ -52,7 +58,7 @@ function TeamRow({ teamNum, pair, score, isWinner, isLoser, onScore, onPick }) {
   )
 }
 
-export default function MatchCard({ match, pairs, stageKey, label, index, onUpdate, onSetWinner }) {
+export default function MatchCard({ match, pairs, stageKey, label, index, isAdmin, onUpdate, onSetWinner }) {
   const homePair = pairs.find((p) => p.courtNumber === match.home)
   const awayPair = pairs.find((p) => p.courtNumber === match.away)
 
@@ -78,6 +84,7 @@ export default function MatchCard({ match, pairs, stageKey, label, index, onUpda
           score={match.homeScore}
           isWinner={match.winner === match.home}
           isLoser={match.winner === match.away}
+          isAdmin={isAdmin}
           onScore={(v) => onUpdate(stageKey, match.id, 'homeScore', v)}
           onPick={() => onSetWinner(stageKey, match.id, match.home)}
         />
@@ -92,6 +99,7 @@ export default function MatchCard({ match, pairs, stageKey, label, index, onUpda
           score={match.awayScore}
           isWinner={match.winner === match.away}
           isLoser={match.winner === match.home}
+          isAdmin={isAdmin}
           onScore={(v) => onUpdate(stageKey, match.id, 'awayScore', v)}
           onPick={() => onSetWinner(stageKey, match.id, match.away)}
         />

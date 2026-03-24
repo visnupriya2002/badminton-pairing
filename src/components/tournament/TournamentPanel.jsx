@@ -11,7 +11,7 @@ function stageReached(current, target) {
 
 
 
-function BracketSection({ title, emoji, matches, stageKey, pairs, isActive, isComplete, isPending, onUpdate, onSetWinner, gridCols }) {
+function BracketSection({ title, emoji, matches, stageKey, pairs, isActive, isComplete, isPending, isAdmin, onUpdate, onSetWinner, gridCols }) {
   return (
     <div className="space-y-3">
       {/* Stage header */}
@@ -42,6 +42,7 @@ function BracketSection({ title, emoji, matches, stageKey, pairs, isActive, isCo
               stageKey={stageKey}
               label={match.court ? `Court ${match.court}` : matches.length === 1 ? 'Grand Final' : `Match ${i + 1}`}
               index={i}
+              isAdmin={isAdmin}
               onUpdate={onUpdate}
               onSetWinner={onSetWinner}
             />
@@ -242,7 +243,8 @@ export default function TournamentPanel({ isAdmin, pairs, stage, groups, groupMa
                                   stageKey={match.id.includes('group-A') ? 'group-A' : 'group-B'}
                                   label={`Court ${match.court} · Group ${match.id.includes('group-A') ? 'A' : 'B'}`}
                                   onUpdate={onUpdate}
-                                  onSetWinner={onSetWinner}
+                                  isAdmin={isAdmin}
+                      onSetWinner={onSetWinner}
                                 />
                               ))}
                             </div>
@@ -283,6 +285,7 @@ export default function TournamentPanel({ isAdmin, pairs, stage, groups, groupMa
                       isComplete={semiComplete}
                       isPending={!stageReached(stage, 'semi')}
                       onUpdate={onUpdate}
+                      isAdmin={isAdmin}
                       onSetWinner={onSetWinner}
                       gridCols="grid-cols-1 sm:grid-cols-2"
                     />
@@ -310,6 +313,7 @@ export default function TournamentPanel({ isAdmin, pairs, stage, groups, groupMa
                       isComplete={finalComplete}
                       isPending={!stageReached(stage, 'final')}
                       onUpdate={onUpdate}
+                      isAdmin={isAdmin}
                       onSetWinner={onSetWinner}
                       gridCols="grid-cols-1 max-w-md"
                     />

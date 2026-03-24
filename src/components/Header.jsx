@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { LS_KEYS } from '../constants/defaults'
 import { useGoogleSync } from '../hooks/useGoogleSync'
+
+const ADMIN_PASSWORD = 'metro@2026'
 
 function ShuttlecockLoader() {
   return (
@@ -16,6 +17,24 @@ function ShuttlecockLoader() {
 export default function Header({ isAdmin, onSetAdmin }) {
   const { isSyncing, lastSync } = useGoogleSync(isAdmin)
   const [showConfig, setShowConfig] = useState(false)
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState(false)
+
+  const handleLogin = () => {
+    if (password === ADMIN_PASSWORD) {
+      onSetAdmin(true)
+      setPassword('')
+      setError(false)
+    } else {
+      setError(true)
+      setTimeout(() => setError(false), 2000)
+    }
+  }
+
+  const handleLogout = () => {
+    onSetAdmin(false)
+    setPassword('')
+  }
 
   return (
     <header className="bg-white/80 backdrop-blur-md border-b border-slate-200 px-6 py-4 shadow-sm sticky top-0 z-50">
@@ -45,10 +64,15 @@ export default function Header({ isAdmin, onSetAdmin }) {
             <div className="h-6 w-px bg-slate-100 mx-1" />
 
             <div className="flex items-center gap-2">
+              {isAdmin && (
+                <span className="hidden sm:flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-50 border border-emerald-100 px-2 py-1 rounded-lg">
+                  🛡️ ADMIN
+                </span>
+              )}
               <button 
                 onClick={() => setShowConfig(!showConfig)}
-                className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all ${showConfig ? 'bg-blue-600 text-white rotate-90' : 'bg-slate-50 text-slate-400 hover:bg-slate-200'}`}
-                title="Sync Info"
+                className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all ${showConfig ? 'bg-[#5F59FF] text-white rotate-90' : 'bg-slate-50 text-slate-400 hover:bg-slate-200'}`}
+                title="Settings"
               >
                 ⚙️
               </button>
@@ -69,8 +93,9 @@ export default function Header({ isAdmin, onSetAdmin }) {
                 )}
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+              {/* Cloud Info */}
               <div className="space-y-1">
                 <div className="flex items-center justify-between py-2.5 border-b border-white/5">
                   <span className="text-xs text-slate-500 font-medium">Cloud Storage</span>
@@ -88,21 +113,53 @@ export default function Header({ isAdmin, onSetAdmin }) {
                 </div>
               </div>
 
-              <div className="bg-white/[0.03] rounded-2xl p-4 border border-white/5 flex flex-col justify-center">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Admin Mode</span>
-                  <button 
-                    onClick={() => onSetAdmin(!isAdmin)}
-                    className={`relative w-10 h-5 rounded-full transition-all duration-300 ${isAdmin ? 'bg-blue-600 shadow-[0_0_12px_rgba(37,99,235,0.4)]' : 'bg-slate-700'}`}
-                  >
-                    <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all duration-300 ${isAdmin ? 'left-6' : 'left-1'}`} />
-                  </button>
-                </div>
-                <p className="text-[9px] text-slate-500 leading-normal italic">
-                  {isAdmin 
-                    ? "Organizers: All editing and reset controls are now enabled." 
-                    : "Viewers: Editing and resetting are disabled to protect data."}
-                </p>
+              {/* Admin Auth Panel */}
+              <div className="bg-white/[0.03] rounded-2xl p-4 border border-white/5 flex flex-col justify-center gap-3">
+                {isAdmin ? (
+                  <>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-base">🛡️</span>
+                      <span className="text-xs font-black uppercase tracking-widest text-emerald-400">Organizer Access Granted</span>
+                    </div>
+                    <p className="text-[9px] text-slate-500 italic leading-relaxed">
+                      You have full control over players, pairings, scores, and tournament management.
+                    </p>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full mt-1 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-all"
+                    >
+                      🔓 Sign Out
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-base">🔐</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Organizer Sign In</span>
+                    </div>
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+                      placeholder="Enter admin password"
+                      className={`w-full bg-white/5 border rounded-lg px-3 py-2 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:ring-1 transition-all ${
+                        error 
+                          ? 'border-red-500/60 ring-1 ring-red-500/30 animate-pulse' 
+                          : 'border-white/10 focus:border-blue-500/50 focus:ring-blue-500/30'
+                      }`}
+                    />
+                    {error && (
+                      <p className="text-[9px] text-red-400 font-bold uppercase tracking-wide -mt-1">❌ Incorrect password</p>
+                    )}
+                    <button
+                      onClick={handleLogin}
+                      className="w-full py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-[#5F59FF]/20 text-[#5F59FF] border border-[#5F59FF]/30 hover:bg-[#5F59FF]/30 transition-all"
+                    >
+                      Unlock Admin Access
+                    </button>
+                  </>
+                )}
               </div>
             </div>
             
